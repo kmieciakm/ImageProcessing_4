@@ -54,66 +54,159 @@ void ParseCommandAndRun(std::string command, int argumentsAmount, char *argument
     const int CHANNEL_AMOUNT = photo.GetChannelAmount();
 
     if(command == "--dft"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyDFT1D(photo.GetChannel(i));
-            Mirror(photo.GetChannel(i));
-            photo.SetChannel(i, photo.GetChannel(i).GetScaledChannel());
+        if(argumentsAmount != 3){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            for(int i=0; i < CHANNEL_AMOUNT; i++){
+                ApplyDFT1D(photo.GetChannel(i));
+                Mirror(photo.GetChannel(i));
+                photo.SetChannel(i, photo.GetChannel(i).GetScaledChannel());
+            }
+            photo.SetFilename( photo.GetFilename() + "_dft");
         }
-        photo.SetFilename( photo.GetFilename() + "_dft");
     }else if(command == "--idft"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyDFT1D(photo.GetChannel(i));
-            ApplyIDFT1D(photo.GetChannel(i));
+        if(argumentsAmount != 3){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            for(int i=0; i < CHANNEL_AMOUNT; i++){
+                ApplyDFT1D(photo.GetChannel(i));
+                ApplyIDFT1D(photo.GetChannel(i));
+            }
+            photo.SetFilename( photo.GetFilename() + "_idft");
         }
-        photo.SetFilename( photo.GetFilename() + "_idft");
     }else if(command == "--fft"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyFFT(photo.GetChannel(i));
-            Mirror(photo.GetChannel(i));
-            photo.SetChannel(i, photo.GetChannel(i).GetScaledChannel());
+        if(argumentsAmount != 3){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            for(int i=0; i < CHANNEL_AMOUNT; i++){
+                ApplyFFT(photo.GetChannel(i));
+                Mirror(photo.GetChannel(i));
+                photo.SetChannel(i, photo.GetChannel(i).GetScaledChannel());
+            }
+            photo.SetFilename( photo.GetFilename() + "_fft");
         }
-        photo.SetFilename( photo.GetFilename() + "_fft");
     }else if(command == "--ifft"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyFFT(photo.GetChannel(i));
-            ApplyIFFT(photo.GetChannel(i));
+        if(argumentsAmount != 3){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            for(int i=0; i < CHANNEL_AMOUNT; i++){
+                ApplyFFT(photo.GetChannel(i));
+                ApplyIFFT(photo.GetChannel(i));
+            }
+            photo.SetFilename( photo.GetFilename() + "_ifft");
         }
-        photo.SetFilename( photo.GetFilename() + "_ifft");
     }else if(command == "--lowpass"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyLowPassFilter(photo.GetChannel(i), 60);
-        }
-        photo.SetFilename( photo.GetFilename() + "_lowpass");
+        if(argumentsAmount != 4){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            if( !isIntNumber(static_cast<std::string>(arguments[3])) ){
+                std::cout << "Wrong argument value";
+                exit(0);
+            }else{
+                int radius = std::stoi(static_cast<std::string>(arguments[3]));
+                for(int i=0; i < CHANNEL_AMOUNT; i++){
+                    ApplyLowPassFilter(photo.GetChannel(i), radius);
+                }
+                photo.SetFilename( photo.GetFilename() + "_lowpass");
+            }
+        }   
     }else if(command == "--highpass"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyHighPassFilter(photo.GetChannel(i), 60);
+        if(argumentsAmount != 4){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            if( !isIntNumber(static_cast<std::string>(arguments[3])) ){
+                std::cout << "Wrong argument value";
+                exit(0);
+            }else{
+                int radius = std::stoi(static_cast<std::string>(arguments[3]));
+                for(int i=0; i < CHANNEL_AMOUNT; i++){
+                    ApplyHighPassFilter(photo.GetChannel(i), radius);
+                }
+                photo.SetFilename( photo.GetFilename() + "_highpass");
+            }
         }
-        photo.SetFilename( photo.GetFilename() + "_highpass");
     }else if(command == "--bandcut"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyBandCutFilter(photo.GetChannel(i), 25, 50);
+        if(argumentsAmount != 5){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            if( !isIntNumber(static_cast<std::string>(arguments[3])) || !isIntNumber(static_cast<std::string>(arguments[4])) 
+                || (static_cast<std::string>(arguments[3]) > static_cast<std::string>(arguments[4])) ){
+                    std::cout << "Wrong argument value";
+                exit(0);
+            }else{
+                int radiusLowPass = std::stoi(static_cast<std::string>(arguments[3]));
+                int radiusHighPass = std::stoi(static_cast<std::string>(arguments[4]));
+                for(int i=0; i < CHANNEL_AMOUNT; i++){
+                    ApplyBandCutFilter(photo.GetChannel(i), radiusLowPass, radiusHighPass);
+                }
+                photo.SetFilename( photo.GetFilename() + "_bandcut");
+            }
         }
-        photo.SetFilename( photo.GetFilename() + "_bandcut");
     }else if(command == "--bandpass"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyBandPassFilter(photo.GetChannel(i), 30, 60);
+        if(argumentsAmount != 5){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            if( !isIntNumber(static_cast<std::string>(arguments[3])) || !isIntNumber(static_cast<std::string>(arguments[4])) 
+                || (static_cast<std::string>(arguments[3]) < static_cast<std::string>(arguments[4])) ){
+                std::cout << "Wrong argument value";
+                exit(0);
+            }else{
+                int radiusLowPass = std::stoi(static_cast<std::string>(arguments[3]));
+                int radiusHighPass = std::stoi(static_cast<std::string>(arguments[4]));
+                for(int i=0; i < CHANNEL_AMOUNT; i++){
+                    ApplyBandPassFilter(photo.GetChannel(i), radiusLowPass, radiusHighPass);
+                }
+                photo.SetFilename( photo.GetFilename() + "_bandpass");
+            }
         }
-        photo.SetFilename( photo.GetFilename() + "_bandpass");
     }else if(command == "--edge"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyEdgeDetectionFilter(photo.GetChannel(i), 90.0, 10.0, 100);
+        if(argumentsAmount != 6){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            if( !isIntNumber(static_cast<std::string>(arguments[3])) || !isIntNumber(static_cast<std::string>(arguments[4])) || !isIntNumber(static_cast<std::string>(arguments[5])) ){
+                    std::cout << "Wrong argument value";
+                exit(0);
+            }else{
+                double slope = std::stod(static_cast<std::string>(arguments[3]));
+                double width = std::stod(static_cast<std::string>(arguments[4]));
+                int radius = std::stoi(static_cast<std::string>(arguments[5]));
+                for(int i=0; i < CHANNEL_AMOUNT; i++){
+                    ApplyEdgeDetectionFilter(photo.GetChannel(i), slope, width, radius);
+                }
+                photo.SetFilename( photo.GetFilename() + "_edge");
+            }
         }
-        photo.SetFilename( photo.GetFilename() + "_edge");
     }else if(command == "--phase"){
-        for(int i=0; i < CHANNEL_AMOUNT; i++){
-            ApplyPhaseFilter(photo.GetChannel(i), 30, 50);
+        if(argumentsAmount != 5){
+            std::cout << "Unexpected or missing argument";
+            exit(0);
+        }else{
+            if( !isIntNumber(static_cast<std::string>(arguments[3])) || !isIntNumber(static_cast<std::string>(arguments[4])) ){
+                    std::cout << "Wrong argument value";
+                exit(0);
+            }else{
+                int k = std::stoi(static_cast<std::string>(arguments[3]));
+                int l = std::stoi(static_cast<std::string>(arguments[4]));
+                for(int i=0; i < CHANNEL_AMOUNT; i++){
+                    ApplyPhaseFilter(photo.GetChannel(i), k, l);
+                }
+                photo.SetFilename( photo.GetFilename() + "_phase");
+            }
         }
-        photo.SetFilename( photo.GetFilename() + "_phase");
     }else if(command == "--test"){
         for(int i=0; i < CHANNEL_AMOUNT; i++){
             // Mirror(photo.GetChannel(i));
             // photo.SetChannel(i, photo.GetChannel(i).GetScaledChannel());
-            //photo.SetChannel(i, BuildMask(photo.GetChannel(i), 90.0, 10.0, 100));
+            // photo.SetChannel(i, BuildMask(photo.GetChannel(i), 90.0, 10.0, 100));
         }
         photo.SetFilename( photo.GetFilename() + "_test");
     }else{

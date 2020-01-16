@@ -4,16 +4,16 @@
 #include "myLib/headers/proc.h"
 #include "myLib/headers/parser.h"
 
-using namespace cimg_library;
+using namespace std;
 
 int main(int argc, char *argv[]) {
 
     if(argc == 2 && (std::string)argv[1]=="--help")
         DisplayHelpInformations();
     
-    cimg::exception_mode(0); 
+    cimg_library::cimg::exception_mode(0); 
     try{
-        CImg<unsigned char> loadedPicture(argv[1]);
+        cimg_library::CImg<unsigned char> loadedPicture(argv[1]);
         std::string command;
 
         if(argv[2]){
@@ -32,13 +32,13 @@ int main(int argc, char *argv[]) {
         ParseCommandAndRun(command, argc, argv, myPicture);        
 
         // convert Photo object to Cimg, dispaly and save
-        CImg<unsigned char> img(myPicture.GetWidth(), myPicture.GetHeight(), 1, myPicture.GetChannelAmount());
+        cimg_library::CImg<unsigned char> img(myPicture.GetWidth(), myPicture.GetHeight(), 1, myPicture.GetChannelAmount());
         CopyPhotoObjectToCImg(myPicture,img);
         DisplayImage(img);
         std::string savePath = "./output/" + myPicture.GetFilename() + ".bmp";
         img.save(savePath.c_str());
 
-    }catch(CImgException& e){
+    }catch(cimg_library::CImgException& e){
         std::cout << "Image does not exist.";
         exit(0);
     }

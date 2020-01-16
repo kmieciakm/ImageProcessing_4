@@ -9,16 +9,16 @@ class Channel{
 private:
     int width;
     int height;
-    std::vector<std::vector<std::complex<double>>> fill;
+    std::vector< std::vector< std::complex<double> > > fill;
 
 public:
-    void SetValue(int _x, int _y, std::complex<double> _value); 
+    void SetValue(int _x, int _y, std::complex<double> _value);
     std::complex<double> GetValue(int _x, int _y);
     double GetMagnitude(int _x, int _y);
-    void SetRow(int _rowNumber, std::vector<std::complex<double>> _row);
-    std::vector<std::complex<double>> GetRow(int _rowNumber);
-    void SetColumn(int _columnNumber, std::vector<std::complex<double>> _column);
-    std::vector<std::complex<double>> GetColumn(int _columnNumber);
+    void SetRow(int _rowNumber, std::vector< std::complex<double> > _row);
+    std::vector< std::complex<double> > GetRow(int _rowNumber);
+    void SetColumn(int _columnNumber, std::vector< std::complex<double> > _column);
+    std::vector< std::complex<double> > GetColumn(int _columnNumber);
     int GetWidth();
     int GetHeight();
     Channel GetScaledChannel();
