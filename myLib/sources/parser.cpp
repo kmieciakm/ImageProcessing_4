@@ -66,6 +66,19 @@ void ParseCommandAndRun(std::string command, int argumentsAmount, char *argument
             ApplyIDFT1D(photo.GetChannel(i));
         }
         photo.SetFilename( photo.GetFilename() + "_idft");
+    }else if(command == "--fft"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyFFT(photo.GetChannel(i));
+            Mirror(photo.GetChannel(i));
+            photo.SetChannel(i, photo.GetChannel(i).GetScaledChannel());
+        }
+        photo.SetFilename( photo.GetFilename() + "_fft");
+    }else if(command == "--ifft"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyFFT(photo.GetChannel(i));
+            ApplyIFFT(photo.GetChannel(i));
+        }
+        photo.SetFilename( photo.GetFilename() + "_ifft");
     }else if(command == "--lowpass"){
         for(int i=0; i < CHANNEL_AMOUNT; i++){
             ApplyLowPassFilter(photo.GetChannel(i), 60);
@@ -98,7 +111,9 @@ void ParseCommandAndRun(std::string command, int argumentsAmount, char *argument
         photo.SetFilename( photo.GetFilename() + "_phase");
     }else if(command == "--test"){
         for(int i=0; i < CHANNEL_AMOUNT; i++){
-            photo.SetChannel(i, BuildMask(photo.GetChannel(i), 90.0, 10.0, 100));
+            // Mirror(photo.GetChannel(i));
+            // photo.SetChannel(i, photo.GetChannel(i).GetScaledChannel());
+            //photo.SetChannel(i, BuildMask(photo.GetChannel(i), 90.0, 10.0, 100));
         }
         photo.SetFilename( photo.GetFilename() + "_test");
     }else{

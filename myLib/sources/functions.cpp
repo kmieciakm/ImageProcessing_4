@@ -51,6 +51,53 @@ std::vector<std::complex<double>> IDFT1D(std::vector<std::complex<double>> x){
     return x;
 }
 
+std::vector<std::complex<double>> FFT1D(std::vector<std::complex<double>> x){
+    std::vector<std::complex<double>> xCopy = x;
+    int N = x.size();
+    int Nhalf = N / 2;
+    std::complex<double> sum = (0.0, 0.0);
+
+    for(int k = 0; k < N; k++){
+        sum = (0.0, 0.0);
+        if( k % 2 == 0){
+            for(int n = 0; n < Nhalf; n++){
+                sum += (xCopy[n] + xCopy[n + Nhalf]) * W(k, n, N);
+            }
+        }else{
+            for(int n = 0; n < Nhalf; n++){
+                sum += ( (xCopy[n] - xCopy[n + Nhalf]) * W(1, n, N) ) * W(k, n, N);
+            }
+        }
+        x[k] = sum;
+    }
+
+    return x;
+}
+
+std::vector<std::complex<double>> IFFT1D(std::vector<std::complex<double>> x){
+    std::vector<std::complex<double>> xCopy = x;
+    int N = x.size();
+    int Nhalf = N / 2;
+    std::complex<double> sum = (0.0, 0.0);
+
+    for(int k = 0; k < N; k++){
+        sum = (0.0, 0.0);
+        if( k % 2 == 0){
+            for(int n = 0; n < Nhalf; n++){
+                sum += (xCopy[n] + xCopy[n + N/2]) * W(-k, n, N);
+            }
+        }else{
+            for(int n = 0; n < Nhalf; n++){
+                sum += ( (xCopy[n] - xCopy[n + N/2]) * W(-1, n, N) ) * W(-k, n, N);
+            }
+        }
+        sum /= N;
+        x[k] = sum;
+    }
+
+    return x;
+}
+
 void ApplyDFT1D(Channel& channel){
     for(int r = 0; r < channel.GetHeight(); r++){
         std::vector<std::complex<double>> row;
@@ -83,8 +130,40 @@ void ApplyIDFT1D(Channel& channel){
     }
 }
 
+void ApplyFFT(Channel& channel){
+     for(int r = 0; r < channel.GetHeight(); r++){
+        std::vector<std::complex<double>> row;
+        row = channel.GetRow(r);
+        row = FFT1D(row);
+        channel.SetRow(r, row);
+    }
+
+    for(int c = 0; c < channel.GetWidth(); c++){
+        std::vector<std::complex<double>> column;
+        column = channel.GetColumn(c);
+        column = FFT1D(column);
+        channel.SetColumn(c, column);
+    }
+}
+
+void ApplyIFFT(Channel& channel){
+     for(int r = 0; r < channel.GetHeight(); r++){
+        std::vector<std::complex<double>> row;
+        row = channel.GetRow(r);
+        row = IFFT1D(row);
+        channel.SetRow(r, row);
+    }
+
+    for(int c = 0; c < channel.GetWidth(); c++){
+        std::vector<std::complex<double>> column;
+        column = channel.GetColumn(c);
+        column = IFFT1D(column);
+        channel.SetColumn(c, column);
+    }
+}
+
 void ApplyLowPassFilter(Channel& channel, int radius){
-    ApplyDFT1D(channel);
+    ApplyFFT(channel);
     Mirror(channel);
     for(int x = 0; x < channel.GetWidth(); x++){
         for(int y = 0; y < channel.GetHeight(); y++){
@@ -93,11 +172,11 @@ void ApplyLowPassFilter(Channel& channel, int radius){
         }
     }
     Mirror(channel);
-    ApplyIDFT1D(channel);
+    ApplyIFFT(channel);
 }
 
 void ApplyHighPassFilter(Channel& channel, int radius){
-    ApplyDFT1D(channel);
+    ApplyFFT(channel);
     Mirror(channel);
     for(int x = 0; x < channel.GetWidth(); x++){
         for(int y = 0; y < channel.GetHeight(); y++){
@@ -108,11 +187,11 @@ void ApplyHighPassFilter(Channel& channel, int radius){
         }
     }
     Mirror(channel);
-    ApplyIDFT1D(channel);
+    ApplyIFFT(channel);
 }
 
 void ApplyBandPassFilter(Channel& channel, int radiusLow, int radiusHigh){
-    ApplyDFT1D(channel);
+    ApplyFFT(channel);
     Mirror(channel);
     for(int x = 0; x < channel.GetWidth(); x++){
         for(int y = 0; y < channel.GetHeight(); y++){
@@ -125,11 +204,11 @@ void ApplyBandPassFilter(Channel& channel, int radiusLow, int radiusHigh){
         }
     }
     Mirror(channel);
-    ApplyIDFT1D(channel);
+    ApplyIFFT(channel);
 }
 
 void ApplyBandCutFilter(Channel& channel, int radiusLow, int radiusHigh){
-    ApplyDFT1D(channel);
+    ApplyFFT(channel);
     Mirror(channel);
     for(int x = 0; x < channel.GetWidth(); x++){
         for(int y = 0; y < channel.GetHeight(); y++){
@@ -140,11 +219,11 @@ void ApplyBandCutFilter(Channel& channel, int radiusLow, int radiusHigh){
         }
     }
     Mirror(channel);
-    ApplyIDFT1D(channel);
+    ApplyIFFT(channel);
 }
 
 void ApplyEdgeDetectionFilter(Channel& channel, double slopeAngle, double widthAngle, int radius){
-    ApplyDFT1D(channel);
+    ApplyFFT(channel);
     Mirror(channel);
     Channel mask = BuildMask(channel, slopeAngle, widthAngle, radius);
     for(int x = 0; x < channel.GetWidth(); x++){
@@ -154,11 +233,11 @@ void ApplyEdgeDetectionFilter(Channel& channel, double slopeAngle, double widthA
         }
     }
     Mirror(channel);
-    ApplyIDFT1D(channel);
+    ApplyIFFT(channel);
 }
 
 void ApplyPhaseFilter(Channel& channel, int k, int l){
-    ApplyDFT1D(channel);
+    ApplyFFT(channel);
     Mirror(channel);
     Channel mask = channel;
     for(int x = 0; x < channel.GetWidth(); x++){
@@ -170,7 +249,7 @@ void ApplyPhaseFilter(Channel& channel, int k, int l){
         }
     }
     Mirror(channel);
-    ApplyIDFT1D(channel);
+    ApplyIFFT(channel);
 }
 
 void Mirror(Channel& channel){
