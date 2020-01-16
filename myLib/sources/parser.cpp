@@ -66,9 +66,39 @@ void ParseCommandAndRun(std::string command, int argumentsAmount, char *argument
             ApplyIDFT1D(photo.GetChannel(i));
         }
         photo.SetFilename( photo.GetFilename() + "_idft");
+    }else if(command == "--lowpass"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyLowPassFilter(photo.GetChannel(i), 60);
+        }
+        photo.SetFilename( photo.GetFilename() + "_lowpass");
+    }else if(command == "--highpass"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyHighPassFilter(photo.GetChannel(i), 60);
+        }
+        photo.SetFilename( photo.GetFilename() + "_highpass");
+    }else if(command == "--bandcut"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyBandCutFilter(photo.GetChannel(i), 25, 50);
+        }
+        photo.SetFilename( photo.GetFilename() + "_bandcut");
+    }else if(command == "--bandpass"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyBandPassFilter(photo.GetChannel(i), 30, 60);
+        }
+        photo.SetFilename( photo.GetFilename() + "_bandpass");
+    }else if(command == "--edge"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyEdgeDetectionFilter(photo.GetChannel(i), 90.0, 10.0, 100);
+        }
+        photo.SetFilename( photo.GetFilename() + "_edge");
+    }else if(command == "--phase"){
+        for(int i=0; i < CHANNEL_AMOUNT; i++){
+            ApplyPhaseFilter(photo.GetChannel(i), 30, 50);
+        }
+        photo.SetFilename( photo.GetFilename() + "_phase");
     }else if(command == "--test"){
         for(int i=0; i < CHANNEL_AMOUNT; i++){
-            photo.SetChannel(i, BuildMask(photo.GetChannel(i), 70.0, 120.0, 100));
+            photo.SetChannel(i, BuildMask(photo.GetChannel(i), 90.0, 10.0, 100));
         }
         photo.SetFilename( photo.GetFilename() + "_test");
     }else{

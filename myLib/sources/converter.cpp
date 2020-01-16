@@ -21,7 +21,7 @@ void CopyPhotoObjectToCImg(Photo & photo, cimg_library::CImg<unsigned char> & CI
         Channel currentChannel = photo.GetChannel(currentChannelID);
         for(int x=0; x<photo.GetWidth(); x++){
             for(int y=0; y<photo.GetHeight(); y++){
-                color[x][y][currentChannelID] = currentChannel.GetValue(x, y).real();
+                color[x][y][currentChannelID] = currentChannel.GetMagnitude(x, y);
             }
         }
     }

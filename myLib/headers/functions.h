@@ -7,6 +7,12 @@
 
 void ApplyDFT1D(Channel& channel);
 void ApplyIDFT1D(Channel& channel);
+void ApplyLowPassFilter(Channel& channel, int radius);
+void ApplyHighPassFilter(Channel& channel, int radius);
+void ApplyBandPassFilter(Channel& channel, int radiusLow, int radiusHigh);
+void ApplyBandCutFilter(Channel& channel, int radiusLow, int radiusHigh);
+void ApplyEdgeDetectionFilter(Channel& channel, double slopeAngle, double widthAngle, int radius);
+void ApplyPhaseFilter(Channel& channel, int k, int l);
 
 void Mirror(Channel& channel);
 Channel BuildMask(Channel& channel, double angle, double wideAngle, int radius);
