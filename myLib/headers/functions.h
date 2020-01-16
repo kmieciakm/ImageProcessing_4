@@ -23,6 +23,7 @@ std::vector<std::complex<double>> DFT1D(std::vector<std::complex<double>> x);
 std::vector<std::complex<double>> IDFT1D(std::vector<std::complex<double>> x);
 std::vector<std::complex<double>> FFT1D(std::vector<std::complex<double>> x);
 std::vector<std::complex<double>> FFT1DRadix4(std::vector<std::complex<double>> x);
+std::vector<std::complex<double>> IFFT1DRadix4(std::vector<std::complex<double>> x);
 std::vector<std::complex<double>> IFFT1D(std::vector<std::complex<double>> x);
 
 #endif

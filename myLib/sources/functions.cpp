@@ -106,6 +106,39 @@ std::vector<std::complex<double>> FFT1DRadix4(std::vector<std::complex<double>> 
     return x;
 }
 
+std::vector<std::complex<double>> IFFT1DRadix4(std::vector<std::complex<double>> x){
+    std::vector<std::complex<double>> xCopy = x;
+    int N = x.size();
+    int N4 = N / 4;
+    std::complex<double> sum = (0.0, 0.0);
+    const std::complex<double> i(0.0,1.0);
+
+    for(int k = 0; k < N; k++){
+        sum = (0.0, 0.0);
+        if( k % 4 == 0){
+            for(int n = 0; n < N4; n++){
+                sum += (xCopy[n] + xCopy[n + N4] + xCopy[n + (2*N4)] + xCopy[n + (3*N4)]  ) * W(-k/4, n, N4);
+            }
+        }else if( k % 4 == 1){
+            for(int n = 0; n < N4; n++){
+                sum += (xCopy[n] + (i * xCopy[n + N4]) - xCopy[n + (2*N4)] - ( i * xCopy[n + (3*N4)] )  ) * W(-1, n, N) * W(-(k-1)/4, n, N4);
+            }
+        }else if( k % 4 == 2){
+            for(int n = 0; n < N4; n++){
+                sum += (xCopy[n] - xCopy[n + N4] + xCopy[n + (2*N4)] - xCopy[n + (3*N4)] ) * W(-2, n, N) * W(-(k-2)/4, n, N4);
+            }
+        }else if( k % 4 == 3){
+            for(int n = 0; n < N4; n++){
+                sum += (xCopy[n] - (i * xCopy[n + N4]) - xCopy[n + (2*N4)] + ( i * xCopy[n + (3*N4)] )  ) * W(-3, n, N) * W(-(k-3)/4, n, N4);
+            }
+        }
+        sum /= N;
+        x[k] = sum;
+    }
+
+    return x;
+}
+
 std::vector<std::complex<double>> IFFT1D(std::vector<std::complex<double>> x){
     std::vector<std::complex<double>> xCopy = x;
     int N = x.size();
@@ -182,14 +215,14 @@ void ApplyIFFT(Channel& channel){
      for(int r = 0; r < channel.GetHeight(); r++){
         std::vector<std::complex<double>> row;
         row = channel.GetRow(r);
-        row = IFFT1D(row);
+        row = IFFT1DRadix4(row);
         channel.SetRow(r, row);
     }
 
     for(int c = 0; c < channel.GetWidth(); c++){
         std::vector<std::complex<double>> column;
         column = channel.GetColumn(c);
-        column = IFFT1D(column);
+        column = IFFT1DRadix4(column);
         channel.SetColumn(c, column);
     }
 }
