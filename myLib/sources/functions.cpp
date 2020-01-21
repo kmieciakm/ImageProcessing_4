@@ -51,27 +51,27 @@ std::vector<std::complex<double>> IDFT1D(std::vector<std::complex<double>> x){
     return x;
 }
 
-std::vector<std::complex<double>> FFT1D(std::vector<std::complex<double>> x){
-    std::vector<std::complex<double>> xCopy = x;
+void FFT1D(std::vector<std::complex<double>>& x){
     int N = x.size();
-    int Nhalf = N / 2;
-    std::complex<double> sum = (0.0, 0.0);
+    if( N <= 1 ) return;
 
-    for(int k = 0; k < N; k++){
-        sum = (0.0, 0.0);
-        if( k % 2 == 0){
-            for(int n = 0; n < Nhalf; n++){
-                sum += (xCopy[n] + xCopy[n + Nhalf]) * W(k/2, n, Nhalf);
-            }
-        }else{
-            for(int n = 0; n < Nhalf; n++){
-                sum += ( (xCopy[n] - xCopy[n + Nhalf]) * W(1, n, N) ) * W(k/2, n, Nhalf);
-            }
-        }
-        x[k] = sum;
+    std::vector<std::complex<double>> even;
+	std::vector<std::complex<double>> odd;
+
+	for (int i = 0; i < N; i++) {
+        if(i % 2 == 0)
+		    even.push_back(x[i]);
+		else 
+            odd.push_back(x[i]);
+	}
+
+	FFT1D(even);
+	FFT1D(odd);
+
+    for(int k = 0; k < N/2; k++){
+        x[k] = even[k] + W(1.0, k, N) * odd[k];
+        x[k+(N/2)] = even[k] - W(1.0, k, N) * odd[k];
     }
-
-    return x;
 }
 
 std::vector<std::complex<double>> FFT1DRadix4(std::vector<std::complex<double>> x){
@@ -139,28 +139,29 @@ std::vector<std::complex<double>> IFFT1DRadix4(std::vector<std::complex<double>>
     return x;
 }
 
-std::vector<std::complex<double>> IFFT1D(std::vector<std::complex<double>> x){
-    std::vector<std::complex<double>> xCopy = x;
-    int N = x.size();
-    int Nhalf = N / 2;
-    std::complex<double> sum = (0.0, 0.0);
+void IFFT1D(std::vector<std::complex<double>>& x){
+    double N = x.size();
+    if( N <= 1 ) return;
 
-    for(int k = 0; k < N; k++){
-        sum = (0.0, 0.0);
-        if( k % 2 == 0){
-            for(int n = 0; n < Nhalf; n++){
-                sum += (xCopy[n] + xCopy[n + N/2]) * W(-k/2, n, Nhalf);
-            }
-        }else{
-            for(int n = 0; n < Nhalf; n++){
-                sum += (xCopy[n] - xCopy[n + N/2]) * W(-1, n, N) * W(-k/2, n, Nhalf);
-            }
-        }
-        sum /= N;
-        x[k] = sum;
+    std::vector<std::complex<double>> even;
+	std::vector<std::complex<double>> odd;
+
+	for (int i = 0; i < N; i++) {
+        if(i % 2 == 0)
+		    even.push_back(x[i]);
+		else 
+            odd.push_back(x[i]);
+	}
+
+	IFFT1D(even);
+	IFFT1D(odd);
+
+    for(int k = 0; k < N/2; k++){
+        x[k] = (even[k] + W(1.0, -k, N) * odd[k]);
+        x[k] /= 2.0;
+        x[k+(N/2)] = (even[k] - W(1.0, -k, N) * odd[k]);
+        x[k+(N/2)] /= 2.0;
     }
-
-    return x;
 }
 
 void ApplyDFT1D(Channel& channel){
@@ -199,14 +200,14 @@ void ApplyFFT(Channel& channel){
      for(int r = 0; r < channel.GetHeight(); r++){
         std::vector<std::complex<double>> row;
         row = channel.GetRow(r);
-        row = FFT1DRadix4(row);
+        FFT1D(row);
         channel.SetRow(r, row);
     }
 
     for(int c = 0; c < channel.GetWidth(); c++){
         std::vector<std::complex<double>> column;
         column = channel.GetColumn(c);
-        column = FFT1DRadix4(column);
+        FFT1D(column);
         channel.SetColumn(c, column);
     }
 }
@@ -215,14 +216,14 @@ void ApplyIFFT(Channel& channel){
      for(int r = 0; r < channel.GetHeight(); r++){
         std::vector<std::complex<double>> row;
         row = channel.GetRow(r);
-        row = IFFT1DRadix4(row);
+        IFFT1D(row);
         channel.SetRow(r, row);
     }
 
     for(int c = 0; c < channel.GetWidth(); c++){
         std::vector<std::complex<double>> column;
         column = channel.GetColumn(c);
-        column = IFFT1DRadix4(column);
+        IFFT1D(column);
         channel.SetColumn(c, column);
     }
 }
